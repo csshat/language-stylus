@@ -1,5 +1,5 @@
 {
-  "name": "csshat-language-stylus-nib",
+  "name": "csshat-language-stylus",
   "title": "Stylus (nib)",
   "version": "2.0.0",
   "description": "Stylus language",
@@ -10,13 +10,13 @@
     "csshat": "~2.0.0",
     "avocode": "*"
   },
-  "homepage": "https://github.com/csshat/language-stylus-nib",
+  "homepage": "https://github.com/csshat/language-stylus",
   "repository": {
     "type": "git",
-    "url": "https://github.com/csshat/language-stylus-nib"
+    "url": "https://github.com/csshat/language-stylus"
   },
   "bugs": {
-    "url": "https://github.com/csshat/language-stylus-nib/issues"
+    "url": "https://github.com/csshat/language-stylus/issues"
   },
   "author": "Tomas Hanacek <tomashanacek@avocode.com> (https://github.com/tomashanacek)",
   "contributors": [
