@@ -64,6 +64,7 @@ class Stylus
     $$ = $.indents
     declaration = _.partial(_declaration, $.indents, @options.cssStyleSyntax)
     comment = _.partial(_comment, $, @options.showComments)
+    boxModelDimension = _.partial(css.boxModelDimension, @options.boxSizing, if @borders then @borders[0].width else null)
 
     rootValue = switch @options.unit
       when 'px' then 0
@@ -147,14 +148,17 @@ class Stylus
           declaration('top', @bounds.top, unit)
 
       if @bounds
+        width = boxModelDimension(@bounds.width)
+        height = boxModelDimension(@bounds.height)
+
         if @options.enableNib
-          if @bounds.width == @bounds.height
-            declaration('size', @bounds.width, unit)
+          if width == height
+            declaration('size', width, unit)
           else
-            declaration('size', "#{unit(@bounds.width)} #{unit(@bounds.height)}")
+            declaration('size', "#{unit(width)} #{unit(height)}")
         else
-          declaration('width', @bounds.width, unit)
-          declaration('height', @bounds.height, unit)
+          declaration('width', width, unit)
+          declaration('height', height, unit)
 
       declaration('opacity', @opacity)
 
