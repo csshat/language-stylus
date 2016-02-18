@@ -180,5 +180,6 @@ class Stylus
 
       endSelector()
 
+metadata = require './package.json'
 
-module.exports = {defineVariable, renderVariable, setNumberValue, renderClass: Stylus}
+module.exports = {defineVariable, renderVariable, setNumberValue, renderClass: Stylus, metadata}
