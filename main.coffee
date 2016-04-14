@@ -58,6 +58,33 @@ _endSelector = ($, selector, cssStyleSyntax) ->
   $ '}' if selector and cssStyleSyntax
 
 
+declareAbsolutePosition = (declaration, enableNib, bounds, unit) ->
+  if enableNib
+    if bounds.left is bounds.top is 0
+      declaration('absolute', "top left")
+    else
+      declaration('absolute', "top #{unit(bounds.top)} left #{unit(bounds.left)}")
+  else
+    declaration('position', 'absolute')
+    declaration('left', bounds.left, unit)
+    declaration('top', bounds.top, unit)
+
+
+declareDimensions = (declaration, bounds, unit) ->
+  declaration('width', unit(bounds.width))
+  declaration('height', unit(bounds.height))
+
+
+declareSizeMixinOrDimensions = (enableNib, declaration, bounds, unit) ->
+  if enableNib
+    if bounds.width == bounds.height
+      declaration('size', bounds.width, unit)
+    else
+      declaration('size', "#{unit(bounds.width)} #{unit(bounds.height)}")
+  else
+    declareDimensions(declaration, bounds, unit)
+
+
 class Stylus
 
   render: ($) ->
@@ -91,74 +118,56 @@ class Stylus
     endSelector = _.partial(_endSelector, $, @options.selector, @options.cssStyleSyntax)
 
     if @type == 'textLayer'
-      for textStyle in css.prepareTextStyles(@options.inheritFontStyles, @baseTextStyle, @textStyles)
-        comment(css.textSnippet(@text, textStyle))
+      if @baseTextStyle and @textStyles
+        for textStyle in css.prepareTextStyles(@options.inheritFontStyles, @baseTextStyle, @textStyles)
+          comment(css.textSnippet(@text, textStyle))
 
-        if @options.selector
-          if textStyle.ranges
-            selectorText = utils.textFromRange(@text, textStyle.ranges[0])
-          else
-            selectorText = @name
-
-          startSelector(selectorText)
-
-        if not @options.inheritFontStyles or textStyle.base
-          if @options.showAbsolutePositions
-            if @options.enableNib
-              if @bounds.left is @bounds.top is 0
-                declaration('absolute', "top left")
-              else
-                declaration('absolute', "top #{unit(@bounds.top)} left #{unit(@bounds.left)}")
+          if @options.selector
+            if textStyle.ranges
+              selectorText = utils.textFromRange(@text, textStyle.ranges[0])
             else
-              declaration('position', 'absolute')
-              declaration('left', @bounds.left, unit)
-              declaration('top', @bounds.top, unit)
+              selectorText = @name
 
-          if @bounds
-            if @options.enableNib
-              if @bounds.width == @bounds.height
-                declaration('size', @bounds.width, unit)
-              else
-                declaration('size', "#{unit(@bounds.width)} #{unit(@bounds.height)}")
-            else
-              declaration('width', @bounds.width, unit)
-              declaration('height', @bounds.height, unit)
+            startSelector(selectorText)
 
-          declaration('opacity', @opacity)
-          if @shadows
-            declaration('text-shadow', css.convertTextShadows(convertColor, unit, @shadows))
+          if not @options.inheritFontStyles or textStyle.base
+            if @options.showAbsolutePositions
+              declareAbsolutePosition(declaration, @options.enableNib, @bounds, unit)
 
-        fontStyles(textStyle)
+            if @bounds
+              declareSizeMixinOrDimensions(@options.enableNib, declaration, @bounds, unit)
+
+            declaration('opacity', @opacity)
+            if @shadows
+              declaration('text-shadow', css.convertTextShadows(convertColor, unit, @shadows))
+
+          fontStyles(textStyle)
+
+          endSelector()
+      else
+        startSelector(@name)
+        comment('Text dimensions')
+        if @options.showAbsolutePositions
+          declareAbsolutePosition(declaration, @options.enableNib, @bounds, unit)
+
+        if @bounds
+          declareSizeMixinOrDimensions(@options.enableNib, declaration, @bounds, unit)
 
         endSelector()
-        $.newline()
+
+      $.newline()
     else
       comment("Style for #{utils.trim(@name)}")
       startSelector(@name)
 
       if @options.showAbsolutePositions
-        if @options.enableNib
-          if @bounds.left is @bounds.top is 0
-            declaration('absolute', "top left")
-          else
-            declaration('absolute', "top #{unit(@bounds.top)} left #{unit(@bounds.left)}")
-        else
-          declaration('position', 'absolute')
-          declaration('left', @bounds.left, unit)
-          declaration('top', @bounds.top, unit)
+        declareAbsolutePosition(declaration, @options.enableNib, @bounds, unit)
 
       if @bounds
         width = boxModelDimension(@bounds.width)
         height = boxModelDimension(@bounds.height)
 
-        if @options.enableNib
-          if width == height
-            declaration('size', width, unit)
-          else
-            declaration('size', "#{unit(width)} #{unit(height)}")
-        else
-          declaration('width', width, unit)
-          declaration('height', height, unit)
+        declareSizeMixinOrDimensions(@options.enableNib, declaration, { width, height }, unit)
 
       declaration('opacity', @opacity)
 
