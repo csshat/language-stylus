@@ -1,7 +1,7 @@
 {
   "name": "csshat-language-stylus",
   "title": "Stylus",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "Stylus language",
   "main": "main",
   "scope": "source.stylus",
